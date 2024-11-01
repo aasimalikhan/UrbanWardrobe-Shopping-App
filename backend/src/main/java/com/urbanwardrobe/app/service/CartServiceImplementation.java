@@ -51,7 +51,6 @@ public class CartServiceImplementation implements CartService{
         cart.setTotalItem(totalItem);
 
         return cartRepository.save(cart);
-
     }
 
     @Override
@@ -67,7 +66,6 @@ public class CartServiceImplementation implements CartService{
             cartItem.setCart(cart);
             cartItem.setQuantity(req.getQuantity());
             cartItem.setUserId(userId);
-
 
             int price=req.getQuantity()*product.getDiscountedPrice();
             cartItem.setPrice(price);

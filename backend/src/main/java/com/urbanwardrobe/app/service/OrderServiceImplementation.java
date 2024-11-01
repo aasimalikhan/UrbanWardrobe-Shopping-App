@@ -57,12 +57,10 @@ public class OrderServiceImplementation implements OrderService {
             orderItem.setUserId(item.getUserId());
             orderItem.setDiscountedPrice(item.getDiscountedPrice());
 
-
             OrderItem createdOrderItem=orderItemRepository.save(orderItem);
 
             orderItems.add(createdOrderItem);
         }
-
 
         Order createdOrder=new Order();
         createdOrder.setUser(user);

@@ -50,11 +50,9 @@ public class CartItemServiceImplementation implements CartItemService {
             item.setDiscountedPrice(item.getQuantity()*item.getProduct().getDiscountedPrice());
 
             return cartItemRepository.save(item);
-
-
         }
         else {
-            throw new CartItemException("You can't update  another users cart_item");
+            throw new CartItemException("You can't update another users cart_item");
         }
 
     }
