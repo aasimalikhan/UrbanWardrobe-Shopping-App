@@ -37,6 +37,7 @@ const RateProduct = () => {
   };
 
   const handleSubmit = (event) => {
+    console.log("BBBBBBBBBBBBB")
     event.preventDefault();
 
     console.log(formData);
@@ -44,7 +45,7 @@ const RateProduct = () => {
 
     dispatch(createReview({review:formData.title,productId}))
     setFormData({title:"",description:""})
-    navigate(`/product/${productId}`)
+    // navigate(`/product/${productId}`)
 
   };
   useEffect(() => {
@@ -85,16 +86,7 @@ const RateProduct = () => {
                 {3789} reviews
               </p>
             </div>
-            <div>
-              <p className="space-y-2 font-semibold">
-                <FiberManualRecordIcon
-                  sx={{ width: "15px", height: "15px" }}
-                  className="text-green-600  mr-2"
-                />
-                <span>Delivered On Mar 03</span>{" "}
-              </p>
-              <p className="text-xs">Your Item Has Been Delivered</p>
-            </div>
+            
           </div>
         </Grid>
         <Grid item xs={12} lg={6}>

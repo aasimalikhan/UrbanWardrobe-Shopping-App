@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import React from "react";
 import OrderTraker from "./OrderTraker";
 import StarIcon from "@mui/icons-material/Star";
@@ -11,21 +11,38 @@ import { getOrderById } from "../../../Redux/Customers/Order/Action";
 
 const OrderDetails = () => {
   const dispatch = useDispatch();
-  const jwt = localStorage.getItem("jwt");
   const { orderId } = useParams();
   const { order } = useSelector((store) => store);
 
-  console.log("order", order.order);
-
   useEffect(() => {
     dispatch(getOrderById(orderId));
-  }, []);
+  }, [dispatch, orderId]);
 
   const navigate = useNavigate();
+
+  const getActiveStep = (status) => {
+    switch (status) {
+      case "PLACED":
+        return 1;
+      case "CONFIRMED":
+        return 2;
+      case "SHIPPED":
+        return 3;
+      case "OUT_FOR_DELIVERY":
+        return 4;
+      case "DELIVERED":
+        return 5;
+      default:
+        return null;
+    }
+  };
+
+  const activeStep = getActiveStep(order.order?.orderStatus);
+
   return (
-    <div className=" px-2 lg:px-36 space-y-7 ">
+    <div className="px-2 lg:px-36 space-y-7">
       <Grid container className="p-3 shadow-lg">
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <p className="font-bold text-lg py-2">Delivery Address</p>
         </Grid>
         <Grid item xs={6}>
@@ -33,77 +50,56 @@ const OrderDetails = () => {
         </Grid>
       </Grid>
       <Box className="p-5 shadow-lg border rounded-md">
-        <Grid
-          container
-          sx={{ justifyContent: "space-between", alignItems: "center" }}
-        >
+        <Grid container sx={{ justifyContent: "space-between", alignItems: "center" }}>
           <Grid item xs={9}>
-            <OrderTraker
-              activeStep={
-                order.order?.orderStatus === "PLACED"
-                  ? 1
-                  : order.order?.orderStatus === "CONFIRMED"
-                  ? 2
-                  : order.order?.orderStatus === "SHIPPED"
-                  ? 3
-                  : 5
-              }
-            />
+            <OrderTraker activeStep={activeStep} />
           </Grid>
           <Grid item>
-           {order.order?.orderStatus==="DELIVERED" && <Button sx={{ color: ""}} color="error" variant="text" >
-              RETURN
-            </Button>}
-
-            {order.order?.orderStatus!=="DELIVERED" && <Button sx={{ color: deepPurple[500] }} variant="text">
-              cancel order
-            </Button>}
+            {order.order?.orderStatus === "DELIVERED" && (
+              <Button color="error" variant="text">RETURN</Button>
+            )}
+            {order.order?.orderStatus !== "DELIVERED" && (
+              <Button sx={{ color: deepPurple[500] }} variant="text">Cancel Order</Button>
+            )}
           </Grid>
         </Grid>
       </Box>
-
-    
 
       <Grid container className="space-y-5">
         {order.order?.orderItems.map((item) => (
           <Grid
             container
             item
+            key={item.product.id}
             className="shadow-xl rounded-md p-5 border"
             sx={{ alignItems: "center", justifyContent: "space-between" }}
           >
             <Grid item xs={6}>
-              {" "}
-              <div className="flex  items-center ">
+              <div className="flex items-center">
                 <img
                   className="w-[5rem] h-[5rem] object-cover object-top"
                   src={item?.product.imageUrl}
                   alt=""
                 />
                 <div className="ml-5 space-y-2">
-                  <p className="">{item.product.title}</p>
+                  <p>{item.product.title}</p>
                   <p className="opacity-50 text-xs font-semibold space-x-5">
                     <span>Color: pink</span> <span>Size: {item.size}</span>
                   </p>
                   <p>Seller: {item.product.brand}</p>
-                  <p>₹{item.price} </p>
+                  <p>₹{item.price}</p>
                 </div>
               </div>
             </Grid>
             <Grid item>
-              {
-                <Box
-                  sx={{ color: deepPurple[500] }}
-                  onClick={() => navigate(`/account/rate/${item.product.id}`)}
-                  className="flex items-center cursor-pointer"
-                >
-                  <StarIcon
-                    sx={{ fontSize: "2rem" }}
-                    className="px-2 text-5xl"
-                  />
-                  <span>Rate & Review Product</span>
-                </Box>
-              }
+              <Box
+                sx={{ color: deepPurple[500] }}
+                onClick={() => navigate(`/account/rate/${item.product.id}`)}
+                className="flex items-center cursor-pointer"
+              >
+                <StarIcon sx={{ fontSize: "2rem" }} className="px-2 text-5xl" />
+                <span>Rate & Review Product</span>
+              </Box>
             </Grid>
           </Grid>
         ))}
@@ -111,5 +107,5 @@ const OrderDetails = () => {
     </div>
   );
 };
-// sx={{width:"10px",height:"10px"}}
+
 export default OrderDetails;

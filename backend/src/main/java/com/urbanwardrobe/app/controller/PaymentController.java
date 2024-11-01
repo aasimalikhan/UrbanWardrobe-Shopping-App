@@ -55,7 +55,6 @@ public class PaymentController {
             JSONObject paymentLinkRequest = new JSONObject();
             paymentLinkRequest.put("amount",order.getTotalPrice()* 100);
             paymentLinkRequest.put("currency","INR");
-
             // Create a JSON object with the customer details
             JSONObject customer = new JSONObject();
             customer.put("name",order.getUser().getFirstName()+" "+order.getUser().getLastName());
@@ -85,6 +84,7 @@ public class PaymentController {
             PaymentLinkResponse res=new PaymentLinkResponse(paymentLinkUrl,paymentLinkId);
 
             PaymentLink fetchedPayment = razorpay.paymentLink.fetch(paymentLinkId);
+            System.out.println(fetchedPayment);
 
             order.setOrderId(fetchedPayment.get("order_id"));
             orderRepository.save(order);
@@ -100,7 +100,11 @@ public class PaymentController {
 
             System.out.println("Error creating payment link: " + e.getMessage());
             throw new RazorpayException(e.getMessage());
+        } catch (Exception e)
+        {
+            System.out.println(e.getMessage());
         }
+        return null;
     }
 
     @GetMapping("/payments")

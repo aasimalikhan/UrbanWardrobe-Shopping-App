@@ -337,6 +337,7 @@ export default function ProductDetails() {
           </h1>
 
           <div className="border p-5">
+            {console.log(customersProduct)}
             <Grid container spacing={7}>
               <Grid item xs={7}>
                 <div className="space-y-5">
