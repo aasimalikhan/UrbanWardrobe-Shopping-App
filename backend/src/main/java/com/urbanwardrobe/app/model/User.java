@@ -35,11 +35,6 @@ public class User {
 
     private String role;
 
-    private String mobile;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses=new ArrayList<>();
-
     public Long getId() {
         return id;
     }
@@ -135,6 +130,11 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    private String mobile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses=new ArrayList<>();
 
     @Embedded
     @ElementCollection
