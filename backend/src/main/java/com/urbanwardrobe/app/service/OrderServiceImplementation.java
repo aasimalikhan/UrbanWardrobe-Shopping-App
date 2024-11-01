@@ -38,54 +38,47 @@ public class OrderServiceImplementation implements OrderService {
 
     @Override
     public Order createOrder(User user, Address shippAddress) {
-
+        // Set user and save shipping address
         shippAddress.setUser(user);
-        Address address= addressRepository.save(shippAddress);
+        shippAddress.setId(null);
+        Address address = addressRepository.save(shippAddress);
         user.getAddresses().add(address);
         userRepository.save(user);
 
-        Cart cart=cartService.findUserCart(user.getId());
-        List<OrderItem> orderItems=new ArrayList<>();
+        // Retrieve user's cart
+        Cart cart = cartService.findUserCart(user.getId());
+        List<OrderItem> orderItems = new ArrayList<>();
 
-        for(CartItem item: cart.getCartItems()) {
-            OrderItem orderItem=new OrderItem();
+        // Create Order and OrderItems
+        Order createdOrder = new Order();
+        createdOrder.setUser(user);
+        createdOrder.setTotalPrice(cart.getTotalPrice());
+        createdOrder.setTotalDiscountedPrice(cart.getTotalDiscountedPrice());
+        createdOrder.setDiscounte(cart.getDiscounte());
+        createdOrder.setTotalItem(cart.getTotalItem());
+        createdOrder.setShippingAddress(address);
+        createdOrder.setOrderDate(LocalDateTime.now());
+        createdOrder.setOrderStatus(OrderStatus.PENDING);
+        createdOrder.setCreatedAt(LocalDateTime.now());
 
+        for (CartItem item : cart.getCartItems()) {
+            OrderItem orderItem = new OrderItem();
             orderItem.setPrice(item.getPrice());
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setSize(item.getSize());
             orderItem.setUserId(item.getUserId());
             orderItem.setDiscountedPrice(item.getDiscountedPrice());
-
-            OrderItem createdOrderItem=orderItemRepository.save(orderItem);
-
-            orderItems.add(createdOrderItem);
+            orderItem.setOrder(createdOrder);  // Link OrderItem to Order
+            orderItems.add(orderItem);
         }
 
-        Order createdOrder=new Order();
-        createdOrder.setUser(user);
-        createdOrder.setOrderItems(orderItems);
-        createdOrder.setTotalPrice(cart.getTotalPrice());
-        createdOrder.setTotalDiscountedPrice(cart.getTotalDiscountedPrice());
-        createdOrder.setDiscounte(cart.getDiscounte());
-        createdOrder.setTotalItem(cart.getTotalItem());
+        createdOrder.setOrderItems(orderItems);  // Link Order to OrderItems
 
-        createdOrder.setShippingAddress(address);
-        createdOrder.setOrderDate(LocalDateTime.now());
-        createdOrder.setOrderStatus(OrderStatus.PENDING);
-        createdOrder.getPaymentDetails().setStatus(PaymentStatus.PENDING);
-        createdOrder.setCreatedAt(LocalDateTime.now());
-
-        Order savedOrder=orderRepository.save(createdOrder);
-
-        for(OrderItem item:orderItems) {
-            item.setOrder(savedOrder);
-            orderItemRepository.save(item);
-        }
-
-        return savedOrder;
-
+        // Save the Order (OrderItems will be saved automatically if cascade is set)
+        return orderRepository.save(createdOrder);
     }
+
 
     @Override
     public Order placedOrder(Long orderId) throws OrderException {
@@ -108,6 +101,7 @@ public class OrderServiceImplementation implements OrderService {
     public Order shippedOrder(Long orderId) throws OrderException {
         Order order=findOrderById(orderId);
         order.setOrderStatus(OrderStatus.SHIPPED);
+        order.setDeliveryDate(LocalDateTime.now().plusDays(5));
         return orderRepository.save(order);
     }
 
@@ -115,6 +109,7 @@ public class OrderServiceImplementation implements OrderService {
     public Order deliveredOrder(Long orderId) throws OrderException {
         Order order=findOrderById(orderId);
         order.setOrderStatus(OrderStatus.DELIVERED);
+        order.setDeliveryDate(null);
         return orderRepository.save(order);
     }
 
